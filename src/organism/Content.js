@@ -6,7 +6,7 @@ import {theme} from '../core/theme';
 const Content = props => {
   return (
     <View style={styles.container}>
-      <ContentTitle title={props.title} />
+      <ContentTitle title={props.title} titleAction={props.titleAction} />
       <View>{props.children}</View>
     </View>
   );

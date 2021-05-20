@@ -3,11 +3,11 @@ import {StyleSheet, Text, View} from 'react-native';
 import {Chip} from 'react-native-paper';
 import {theme} from '../core/theme';
 
-const Title = ({title}) => {
+const Title = ({title, chip}) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{title}</Text>
-      <Chip style={styles.chip}>Mahasiswa</Chip>
+      {chip && <Chip style={styles.chip}>{chip}</Chip>}
     </View>
   );
 };
@@ -18,8 +18,8 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'flex-start',
     backgroundColor: theme.colors.surface,
-    padding: 16,
-    aspectRatio: 2 / 1,
+    paddingVertical: 24,
+    paddingHorizontal: 16,
   },
   title: {color: theme.colors.primary, fontSize: 32, fontWeight: 'bold'},
   chip: {

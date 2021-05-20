@@ -1,17 +1,16 @@
 import React from 'react';
-import {ScrollView, StyleSheet, View} from 'react-native';
+import {ScrollView, StyleSheet, Text, View} from 'react-native';
 import List from '../components/List';
 import Title from '../components/Title';
 import TitleBar from '../components/TitleBar';
-import {theme} from '../core/theme';
 import Content from '../organism/Content';
 
-const Home = ({navigation}) => {
+const History = ({navigation}) => {
   return (
-    <View style={styles.container}>
+    <View>
       <TitleBar />
       <ScrollView>
-        <Title title={`Selamat Pagi, ${'\n'}Fahmi`} chip="Mahasiswa" />
+        <Title title={`Riwayat ${'\n'}Kehadiran`} />
         <Content
           title="Riwayat Kehadiran"
           titleAction={() => navigation.push('App', {screen: 'History'})}>
@@ -62,11 +61,6 @@ const Home = ({navigation}) => {
   );
 };
 
-export default Home;
+export default History;
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.surface,
-  },
-});
+const styles = StyleSheet.create({});

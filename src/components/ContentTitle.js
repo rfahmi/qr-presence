@@ -1,21 +1,16 @@
-import {useNavigation} from '@react-navigation/native';
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {Appbar} from 'react-native-paper';
 import {theme} from '../core/theme';
 
-const ContentTitle = ({title}) => {
-  const navigation = useNavigation();
-
-  const _toggleDrawer = () => navigation.toggleDrawer();
-
+const ContentTitle = ({title, titleAction}) => {
   return (
     <Appbar.Header style={styles.container}>
       <Appbar.Content title={title} titleStyle={styles.text} />
       <Appbar.Action
         icon="arrow-right"
         color={theme.colors.grayMedium}
-        onPress={_toggleDrawer}
+        onPress={titleAction}
       />
     </Appbar.Header>
   );

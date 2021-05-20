@@ -3,9 +3,10 @@ import {StyleSheet} from 'react-native';
 import {List} from 'react-native-paper';
 import {theme} from '../core/theme';
 
-const ListComponent = ({title, description, icon}) => {
+const ListComponent = ({title, description, icon, onPress}) => {
   return (
     <List.Item
+      onPress={onPress}
       title={title}
       titleStyle={styles.titleStyle}
       description={description}
