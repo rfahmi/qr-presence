@@ -7,11 +7,13 @@ const ContentTitle = ({title, titleAction}) => {
   return (
     <Appbar.Header style={styles.container}>
       <Appbar.Content title={title} titleStyle={styles.text} />
-      <Appbar.Action
-        icon="arrow-right"
-        color={theme.colors.grayMedium}
-        onPress={titleAction}
-      />
+      {titleAction && (
+        <Appbar.Action
+          icon="arrow-right"
+          color={theme.colors.grayMedium}
+          onPress={titleAction}
+        />
+      )}
     </Appbar.Header>
   );
 };

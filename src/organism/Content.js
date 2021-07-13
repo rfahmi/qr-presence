@@ -21,6 +21,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     borderTopLeftRadius: 20,
     borderWidth: 1,
+    borderBottomWidth: 0,
     borderColor: theme.colors.grayLight,
   },
 });

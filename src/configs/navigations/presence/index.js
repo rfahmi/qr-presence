@@ -10,7 +10,7 @@ const PresenceStack = () => {
       <Stack.Screen
         name="Presence"
         component={Presence}
-        options={{title: 'Scan QR Code'}}
+        options={{title: 'Camera'}}
       />
     </Stack.Navigator>
   );
