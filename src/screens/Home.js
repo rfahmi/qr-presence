@@ -1,21 +1,22 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import AsyncStorage from '@react-native-community/async-storage';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
-  FlatList,
+  RefreshControl,
   ScrollView,
+  StatusBar,
   StyleSheet,
   View,
   Text,
-  StatusBar,
+  TouchableOpacity,
 } from 'react-native';
-import List from '../components/List';
+import {Divider} from 'react-native-paper';
+import {RNToasty} from 'react-native-toasty';
 import Title from '../components/Title';
 import TitleBar from '../components/TitleBar';
 import {api} from '../configs/api';
 import {theme} from '../core/theme';
-import Content from '../organism/Content';
-import {RNToasty} from 'react-native-toasty';
-import AsyncStorage from '@react-native-community/async-storage';
-import {IconButton} from 'react-native-paper';
+import Summary from '../organism/Summary';
+import SummaryHistory from '../organism/SummaryHistory';
 
 const Home = ({navigation}) => {
   const [data, setData] = useState(null);
@@ -44,6 +45,7 @@ const Home = ({navigation}) => {
       )
       .then(async res => {
         setLoading(false);
+        console.log(res.data);
         if (res.data.success) {
           setData2(res.data.data);
         } else {
@@ -66,7 +68,7 @@ const Home = ({navigation}) => {
     const api_token = await AsyncStorage.getItem('api_token');
     setLoading(true);
     api
-      .get(`/user/${user._id}/presence?size=1`, {
+      .get(`/user/${user._id}/presence?size=7`, {
         headers: {
           token: api_token,
         },
@@ -99,96 +101,58 @@ const Home = ({navigation}) => {
     user && getPresence() && getSummary();
   }, [user, getPresence, getSummary]);
 
-  const keyExtractor = (item, index) => {
-    return String(item._id);
+  const onRefresh = async () => {
+    setData(null);
+    setData2(null);
+    getPresence();
+    getSummary();
   };
 
   return (
     <View style={styles.container}>
-      <StatusBar backgroundColor="transparent" barStyle="dark-content" />
+      <StatusBar backgroundColor="white" barStyle="dark-content" />
       <TitleBar />
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={loading} onRefresh={onRefresh} />
+        }>
         {user && (
           <Title
             title={`Selamat Pagi, ${'\n'}${user.name}`}
             chip={user.division.name}
           />
         )}
-        <View style={{paddingHorizontal: 16, marginBottom: 16}}>
-          <Text style={{fontWeight: 'bold', fontSize: 18, marginBottom: 8}}>
-            Hari Ini
+        <Divider />
+        <Summary
+          data={data2}
+          action={() => navigation.navigate('App', {screen: 'Report'})}
+        />
+        <SummaryHistory
+          data={data}
+          action={() => navigation.navigate('App', {screen: 'History'})}
+        />
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: 16,
+          }}>
+          <Text style={{color: '#888', fontSize: 12}}>
+            Hanya 10 data tersedia
           </Text>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'flex-start',
-            }}>
-            <View
+          <TouchableOpacity
+            onPress={() => navigation.navigate('App', {screen: 'History'})}>
+            <Text
               style={{
-                flex: 2,
-                justifyContent: 'center',
-                padding: 16,
-                backgroundColor: '#eee',
-                borderRadius: 8,
-                marginRight: 8,
+                color: theme.colors.primary,
+                fontSize: 12,
+                fontWeight: 'bold',
               }}>
-              <Text style={{fontWeight: 'bold', fontSize: 22, marginBottom: 8}}>
-                {data2 && data2.ratioMasuk}%
-              </Text>
-              <Text style={{fontSize: 10}}>Performa Kehadiran</Text>
-            </View>
-            <View
-              style={{
-                flex: 2,
-                justifyContent: 'center',
-                padding: 16,
-                backgroundColor: '#eee',
-                borderRadius: 8,
-                marginRight: 8,
-              }}>
-              <Text style={{fontWeight: 'bold', fontSize: 22, marginBottom: 8}}>
-                {data2 && data2.jumlahTelatMin} Min
-              </Text>
-              <Text style={{fontSize: 10}}>Total Telat</Text>
-            </View>
-
-            <View
-              style={{
-                flex: 1,
-                justifyContent: 'center',
-                alignItems: 'center',
-                padding: 16,
-                borderRadius: 8,
-                marginRight: 8,
-              }}>
-              <IconButton
-                icon="arrow-right"
-                color="#333"
-                size={20}
-                style={{backgroundColor: '#eee'}}
-                onPress={() => navigation.navigate('App', {screen: 'Report'})}
-              />
-              <Text style={{fontSize: 12}}>Semua</Text>
-            </View>
-          </View>
+              Lihat Semua Data
+            </Text>
+          </TouchableOpacity>
         </View>
-
-        <Content
-          title="Riwayat Kehadiran"
-          titleAction={() => navigation.navigate('App', {screen: 'History'})}>
-          <FlatList
-            style={{paddingHorizontal: 8}}
-            data={data}
-            keyExtractor={keyExtractor}
-            renderItem={({item, index}) => (
-              <List
-                title="Test"
-                description={item.timestamp}
-                icon="check-circle"
-              />
-            )}
-          />
-        </Content>
       </ScrollView>
     </View>
   );

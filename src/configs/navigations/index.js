@@ -18,7 +18,7 @@ const RootStack = () => {
     isLogin().then(e => {
       e && dispatch(setAuth(true));
     });
-    setTimeout(() => setLoading(false), 600);
+    setTimeout(() => setLoading(false), 300);
   }, [dispatch]);
 
   return (

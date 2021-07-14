@@ -17,11 +17,11 @@ export default Content;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginHorizontal: 16,
+    marginBottom: 16,
     backgroundColor: theme.colors.background,
-    borderTopRightRadius: 20,
-    borderTopLeftRadius: 20,
+    borderRadius: 20,
     borderWidth: 1,
-    borderBottomWidth: 0,
     borderColor: theme.colors.grayLight,
   },
 });

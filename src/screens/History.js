@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
   FlatList,
+  RefreshControl,
 } from 'react-native';
 import List from '../components/List';
 import TitleBar from '../components/TitleBar';
@@ -17,6 +18,7 @@ import {api} from '../configs/api';
 import {RNToasty} from 'react-native-toasty';
 import {Modalize} from 'react-native-modalize';
 import {Title} from 'react-native-paper';
+import ListSkeleton from '../components/ListSkeleton';
 
 const History = ({navigation}) => {
   const [actionType, setActionType] = useState(null);
@@ -63,16 +65,28 @@ const History = ({navigation}) => {
   }, []);
 
   useEffect(() => {
+    modal.current?.close();
+  }, [navigation]);
+
+  useEffect(() => {
     user && getPresence();
   }, [user, getPresence]);
   const keyExtractor = (item, index) => {
     return String(item._id);
   };
 
+  const onRefresh = async () => {
+    setData(null);
+    getPresence();
+  };
+
   return (
     <View style={styles.container}>
       <TitleBar title="Kehadiran" />
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={loading} onRefresh={onRefresh} />
+        }>
         <View style={{paddingHorizontal: 16, marginBottom: 16}}>
           <View
             style={{
@@ -100,18 +114,23 @@ const History = ({navigation}) => {
           </View>
         </View>
         <Content title="Timeline">
-          <FlatList
-            style={{paddingHorizontal: 8}}
-            data={data}
-            keyExtractor={keyExtractor}
-            renderItem={({item, index}) => (
-              <List
-                title="Test"
-                description={item.timestamp}
-                icon="check-circle"
-              />
-            )}
-          />
+          {data ? (
+            <FlatList
+              style={{paddingHorizontal: 8}}
+              data={data}
+              keyExtractor={keyExtractor}
+              renderItem={({item, index}) => (
+                <List
+                  title="Test"
+                  description={item.timestamp}
+                  icon="check-circle"
+                  index={index}
+                />
+              )}
+            />
+          ) : (
+            Array.from(Array(9)).map(() => <ListSkeleton />)
+          )}
         </Content>
       </ScrollView>
       <Modalize ref={modal} modalStyle={styles.modal} modalHeight={180}>

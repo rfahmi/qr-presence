@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useCallback} from 'react';
-import {ScrollView, StyleSheet, Text, View} from 'react-native';
+import {ScrollView, StyleSheet, RefreshControl, View} from 'react-native';
 import List from '../components/ListInfo';
 import Title from '../components/Title';
 import TitleBar from '../components/TitleBar';
@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import {theme} from '../core/theme';
 import {api} from '../configs/api';
 import {RNToasty} from 'react-native-toasty';
+import ListSkeleton from '../components/ListSkeleton';
 
 const Report = ({navigation}) => {
   const [user, setUser] = useState(null);
@@ -62,13 +63,21 @@ const Report = ({navigation}) => {
     user && getSummary();
   }, [user, getSummary]);
 
+  const onRefresh = async () => {
+    setData(null);
+    getSummary();
+  };
+
   return (
     <View style={styles.container}>
       <TitleBar />
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={loading} onRefresh={onRefresh} />
+        }>
         <Title title={`Laporan ${'\n'}Kehadiran`} />
         <Content title="Informasi Umum">
-          {user && data && (
+          {user && data ? (
             <>
               <List title="N.I.K" description={user.nik} />
               <List title="Nama" description={user.name} />
@@ -88,6 +97,8 @@ const Report = ({navigation}) => {
               <List title="Uang Makan" description={`Rp ${data.uangMakan}`} />
               <List title="Denda Telat" description={`Rp ${data.dendaTelat}`} />
             </>
+          ) : (
+            Array.from(Array(9)).map(() => <ListSkeleton />)
           )}
         </Content>
       </ScrollView>

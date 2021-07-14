@@ -59,7 +59,6 @@ const Presence = ({navigation, route}) => {
         setLoading(false);
         console.log(res.data);
         if (res.data.success) {
-          navigation.goBack();
           RNToasty.Success({
             title: res.data.message,
             position: 'bottom',
@@ -70,6 +69,7 @@ const Presence = ({navigation, route}) => {
             position: 'bottom',
           });
         }
+        navigation.goBack();
       })
       .catch(err => {
         console.log(err);
