@@ -19,6 +19,8 @@ import {RNToasty} from 'react-native-toasty';
 import {Modalize} from 'react-native-modalize';
 import {Title} from 'react-native-paper';
 import ListSkeleton from '../components/ListSkeleton';
+import moment from 'moment';
+import 'moment/locale/id';
 
 const History = ({navigation}) => {
   const [actionType, setActionType] = useState(null);
@@ -121,9 +123,42 @@ const History = ({navigation}) => {
               keyExtractor={keyExtractor}
               renderItem={({item, index}) => (
                 <List
-                  title="Test"
-                  description={item.timestamp}
-                  icon="check-circle"
+                  title={
+                    <View>
+                      <Text
+                        style={{
+                          marginRight: 20,
+                          fontSize: 16,
+                          fontWeight: 'bold',
+                        }}>
+                        {moment(item.timestamp).format('dddd')}
+                      </Text>
+                      {item.isLate && (
+                        <View
+                          style={{
+                            backgroundColor: 'orange',
+                            borderRadius: 2,
+                          }}>
+                          <Text
+                            style={{
+                              marginVertical: 2,
+                              marginLeft: 4,
+                              fontSize: 11,
+                              color: 'white',
+                            }}>
+                            Telat
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  }
+                  description={moment(item.timestamp).format(
+                    'D-MMMM-y / HH:mm:ss',
+                  )}
+                  icon={
+                    item.type === 'in' ? 'arrow-down-circle' : 'arrow-up-circle'
+                  }
+                  iconColor={item.type === 'in' ? 'success' : 'error'}
                   index={index}
                 />
               )}

@@ -23,7 +23,9 @@ const DrawerContent = props => {
       <View style={styles.drawerContent}>
         <TouchableRipple onPress={() => props.navigation.navigate('Report')}>
           <View style={styles.userInfoSection}>
-            <Title style={styles.title}>{user && user.name}</Title>
+            <Title style={styles.title}>
+              {user && user.name.toUpperCase()}
+            </Title>
             <Caption style={styles.caption}>
               {user && user.division.name}
             </Caption>
@@ -82,6 +84,7 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
   },
   title: {
+    color: '#333',
     marginTop: 20,
     fontWeight: 'bold',
   },

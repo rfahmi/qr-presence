@@ -68,7 +68,7 @@ const Home = ({navigation}) => {
     const api_token = await AsyncStorage.getItem('api_token');
     setLoading(true);
     api
-      .get(`/user/${user._id}/presence?size=7`, {
+      .get(`/user/${user._id}/presence?size=10`, {
         headers: {
           token: api_token,
         },
@@ -117,10 +117,7 @@ const Home = ({navigation}) => {
           <RefreshControl refreshing={loading} onRefresh={onRefresh} />
         }>
         {user && (
-          <Title
-            title={`Selamat Pagi, ${'\n'}${user.name}`}
-            chip={user.division.name}
-          />
+          <Title title={`Hai, ${user.name}!`} chip={user.division.name} />
         )}
         <Divider />
         <Summary
@@ -138,8 +135,8 @@ const Home = ({navigation}) => {
             alignItems: 'center',
             padding: 16,
           }}>
-          <Text style={{color: '#888', fontSize: 12}}>
-            Hanya 10 data tersedia
+          <Text style={{color: '#888', fontSize: 12, marginBottom: 2}}>
+            Hanya 10 data ditampilkan
           </Text>
           <TouchableOpacity
             onPress={() => navigation.navigate('App', {screen: 'History'})}>

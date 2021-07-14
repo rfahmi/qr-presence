@@ -21,7 +21,12 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
     paddingHorizontal: 16,
   },
-  title: {color: theme.colors.primary, fontSize: 32, fontWeight: 'bold'},
+  title: {
+    fontFamily: 'Montserrat-Bold',
+    color: theme.colors.primary,
+    fontSize: 32,
+    // fontWeight: 'bold',
+  },
   chip: {
     marginVertical: 8,
   },

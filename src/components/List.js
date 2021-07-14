@@ -3,7 +3,14 @@ import {StyleSheet, View} from 'react-native';
 import {List} from 'react-native-paper';
 import {theme} from '../core/theme';
 
-const ListComponent = ({title, description, icon, onPress, index = 0}) => {
+const ListComponent = ({
+  title,
+  description,
+  icon,
+  onPress,
+  index = 0,
+  iconColor,
+}) => {
   return (
     <View style={{flexDirection: 'row', alignItems: 'center'}}>
       <View
@@ -48,7 +55,7 @@ const ListComponent = ({title, description, icon, onPress, index = 0}) => {
         titleStyle={styles.titleStyle}
         description={description}
         style={styles.list}
-        right={() => <List.Icon icon={icon} color={theme.colors.success} />}
+        right={() => <List.Icon icon={icon} color={theme.colors[iconColor]} />}
       />
     </View>
   );
