@@ -1,6 +1,6 @@
 // import {useIsFocused} from '@react-navigation/native';
 import React, {useEffect, useRef, useState} from 'react';
-import {View, TouchableOpacity} from 'react-native';
+import {View, TouchableOpacity, ActivityIndicator} from 'react-native';
 // import RNBeep from 'react-native-a-beep';
 import BarcodeMask from 'react-native-barcode-mask';
 import {RNCamera} from 'react-native-camera';
@@ -129,8 +129,22 @@ const Presence = ({navigation, route}) => {
                       height: 80,
                       borderRadius: 80,
                       backgroundColor: '#fff',
-                    }}
-                  />
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}>
+                    {loading ? (
+                      <ActivityIndicator
+                        color={theme.colors.primary}
+                        size={48}
+                      />
+                    ) : (
+                      <Icon
+                        name="circle"
+                        color={theme.colors.primary}
+                        size={48}
+                      />
+                    )}
+                  </View>
                 </TouchableOpacity>
               </View>
             )}
