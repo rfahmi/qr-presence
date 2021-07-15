@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-community/async-storage';
 import {DrawerContentScrollView, DrawerItem} from '@react-navigation/drawer';
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, View} from 'react-native';
-import {Caption, Drawer, Title, TouchableRipple} from 'react-native-paper';
+import {StyleSheet, Text, View} from 'react-native';
+import {Caption, Drawer, TouchableRipple} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useDispatch} from 'react-redux';
 import {setAuth} from '../configs/redux/action/authActions';
@@ -23,9 +23,7 @@ const DrawerContent = props => {
       <View style={styles.drawerContent}>
         <TouchableRipple onPress={() => props.navigation.navigate('Report')}>
           <View style={styles.userInfoSection}>
-            <Title style={styles.title}>
-              {user && user.name.toUpperCase()}
-            </Title>
+            <Text style={styles.title}>{user && user.name.toUpperCase()}</Text>
             <Caption style={styles.caption}>
               {user && user.division.name}
             </Caption>
@@ -84,6 +82,7 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
   },
   title: {
+    fontSize: 18,
     color: '#333',
     marginTop: 20,
     fontWeight: 'bold',

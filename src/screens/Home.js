@@ -1,16 +1,21 @@
 import AsyncStorage from '@react-native-community/async-storage';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
+  ActivityIndicator,
+  BackHandler,
   RefreshControl,
   ScrollView,
   StatusBar,
   StyleSheet,
-  View,
   Text,
   TouchableOpacity,
+  View,
 } from 'react-native';
-import {Divider} from 'react-native-paper';
+import ReactNativeBiometrics from 'react-native-biometrics';
+import {Modalize} from 'react-native-modalize';
+import {Button, Divider} from 'react-native-paper';
 import {RNToasty} from 'react-native-toasty';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Title from '../components/Title';
 import TitleBar from '../components/TitleBar';
 import {api} from '../configs/api';
@@ -19,18 +24,71 @@ import Summary from '../organism/Summary';
 import SummaryHistory from '../organism/SummaryHistory';
 
 const Home = ({navigation}) => {
+  const fpModal = useRef(null);
+  const [authenticate, setAuthenticate] = useState(false);
   const [data, setData] = useState(null);
   const [data2, setData2] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [askFpAuth, setAskFpAuth] = useState(false);
 
-  const getUser = async () => {
-    setUser(JSON.parse(await AsyncStorage.getItem('user_data')));
+  const createKey = () => {
+    ReactNativeBiometrics.createKeys('Confirm fingerprint').then(
+      ({publicKey}) => {
+        console.log('key created');
+        enrollKey(publicKey);
+        setAskFpAuth(false);
+      },
+    );
+  };
+  const getUser = () => {
+    AsyncStorage.getItem('user_data').then(res => {
+      const u = JSON.parse(res);
+      setUser(u);
+      AsyncStorage.getItem('fp_auth').then(res => {
+        if (res === 'on') {
+          ReactNativeBiometrics.isSensorAvailable().then(
+            ({available, biometryType}) => {
+              if (available) {
+                console.log('sensor avail');
+                fpModal.current?.open();
+                //2. Check public key exist
+                if (!ReactNativeBiometrics.biometricKeysExist) {
+                  createKey();
+                } else {
+                  console.log('key creation skipped');
+                }
+                //3. Buat Signature
+                ReactNativeBiometrics.createSignature({
+                  promptMessage: 'Konfirmasi Sidik Jari',
+                  payload: u._id,
+                })
+                  .then(({signature, success}) => {
+                    if (success) {
+                      verifySign(signature, u._id);
+                    } else {
+                      fpModal.current?.open();
+                      BackHandler.exitApp();
+                    }
+                  })
+                  .catch(e => console.log(e));
+              }
+            },
+          );
+        } else {
+          setAskFpAuth(true);
+          setAuthenticate(true);
+          setAuthLoading(false);
+        }
+      });
+    });
   };
   const getSummary = useCallback(async () => {
+    console.log('get summary');
     const api_token = await AsyncStorage.getItem('api_token');
     setLoading(true);
-    api
+    await api
       .post(
         `/user/${user._id}/presence/report/summary`,
         {
@@ -64,10 +122,55 @@ const Home = ({navigation}) => {
       });
   }, [user]);
 
+  const enrollKey = async publicKey => {
+    const api_token = await AsyncStorage.getItem('api_token');
+    await api.put(
+      `/user/${user._id}`,
+      {
+        publicKey,
+      },
+      {
+        headers: {
+          token: api_token,
+        },
+      },
+    );
+  };
+  const verifySign = async (signature, user_id) => {
+    setAuthLoading(true);
+    const api_token = await AsyncStorage.getItem('api_token');
+    await api
+      .post(
+        `/user/${user_id}/verifysign`,
+        {
+          signature,
+        },
+        {
+          headers: {
+            token: api_token,
+          },
+        },
+      )
+      .then(res => {
+        setAuthLoading(false);
+        if (res.data.success) {
+          setAuthenticate(true);
+          fpModal.current?.close();
+        } else {
+          setAuthenticate(false);
+        }
+      })
+      .catch(e => {
+        setAuthLoading(false);
+        console.log(e);
+      });
+  };
+
   const getPresence = useCallback(async () => {
+    console.log('get presence');
     const api_token = await AsyncStorage.getItem('api_token');
     setLoading(true);
-    api
+    await api
       .get(`/user/${user._id}/presence?size=10`, {
         headers: {
           token: api_token,
@@ -98,8 +201,8 @@ const Home = ({navigation}) => {
   }, []);
 
   useEffect(() => {
-    user && getPresence() && getSummary();
-  }, [user, getPresence, getSummary]);
+    user && authenticate && getPresence() && getSummary();
+  }, [user, getPresence, getSummary, authenticate]);
 
   const onRefresh = async () => {
     setData(null);
@@ -118,6 +221,37 @@ const Home = ({navigation}) => {
         }>
         {user && (
           <Title title={`Hai, ${user.name}!`} chip={user.division.name} />
+        )}
+        {askFpAuth && (
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              backgroundColor: 'orange',
+              padding: 16,
+            }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}>
+              <Icon name="alert-circle" size={24} color="#fff" />
+              <Text style={{color: '#fff', marginLeft: 6, fontSize: 16}}>
+                Tips: Aktifkan sidik jari
+              </Text>
+            </View>
+            <Button
+              mode="contained"
+              color="white"
+              labelStyle={{color: 'orange'}}
+              onPress={() => {
+                createKey();
+                AsyncStorage.setItem('fp_auth', 'on');
+              }}>
+              Aktifkan
+            </Button>
+          </View>
         )}
         <Divider />
         <Summary
@@ -151,6 +285,30 @@ const Home = ({navigation}) => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      <Modalize
+        ref={fpModal}
+        modalStyle={styles.modal}
+        modalHeight={250}
+        closeOnOverlayTap={false}>
+        <View style={styles.fingerprint}>
+          {authLoading ? (
+            <ActivityIndicator size={100} color={theme.colors.grayLight} />
+          ) : (
+            <Icon
+              name="fingerprint"
+              size={130}
+              color={theme.colors.grayLight}
+            />
+          )}
+        </View>
+        <View style={styles.fingerprintCaption}>
+          {authLoading ? (
+            <Text>Verifikasi identitas</Text>
+          ) : (
+            <Text>Letakkan jari anda pada sensor</Text>
+          )}
+        </View>
+      </Modalize>
     </View>
   );
 };
@@ -162,4 +320,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.surface,
   },
+  fingerprint: {
+    paddingVertical: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  fingerprintCaption: {
+    paddingVertical: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlign: 'center',
+  },
+  modal: {flex: 1, zIndex: 9, padding: 16},
 });

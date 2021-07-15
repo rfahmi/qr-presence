@@ -24,62 +24,95 @@ import 'moment/locale/id';
 
 const History = ({navigation}) => {
   const [actionType, setActionType] = useState(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(1);
   const [data, setData] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
+  const limit = 10;
 
   const modal = useRef(null);
 
   const getUser = async () => {
     setUser(JSON.parse(await AsyncStorage.getItem('user_data')));
   };
-  const getPresence = useCallback(async () => {
-    const api_token = await AsyncStorage.getItem('api_token');
-    setLoading(true);
-    api
-      .get(`/user/${user._id}/presence?page=1&size=1`, {
-        headers: {
-          token: api_token,
-        },
-      })
-      .then(async res => {
-        setLoading(false);
-        if (res.data.success) {
-          setData(res.data.data);
-        } else {
+
+  const getPresence = useCallback(
+    async p => {
+      console.log('page', p);
+      const api_token = await AsyncStorage.getItem('api_token');
+      api
+        .get(`/user/${user._id}/presence?page=${p}&size=${limit}`, {
+          headers: {
+            token: api_token,
+          },
+        })
+        .then(async res => {
+          if (res.data.success) {
+            if (p > 1) {
+              setData([...data, ...res.data.data]);
+            } else {
+              setData(res.data.data);
+            }
+            if (res.data.data.length < limit) {
+              setHasMore(false);
+            }
+            setPage(p + 1);
+            return true;
+          } else {
+            RNToasty.Error({
+              title: res.data.message,
+              position: 'bottom',
+            });
+          }
+        })
+        .catch(err => {
           RNToasty.Error({
-            title: res.data.message,
-            position: 'bottom',
+            title: err.message,
+            position: 'center',
           });
-        }
-      })
-      .catch(err => {
-        setLoading(false);
-        RNToasty.Error({
-          title: err.message,
-          position: 'center',
         });
-      });
-  }, [user]);
+    },
+    [user],
+  );
 
   useEffect(() => {
     getUser();
   }, []);
 
   useEffect(() => {
-    modal.current?.close();
-  }, [navigation]);
-
-  useEffect(() => {
-    user && getPresence();
+    setLoading(true);
+    setPage(1);
+    user &&
+      getPresence(page)
+        .then(() => {
+          setLoading(false);
+        })
+        .catch(() => setLoading(false));
   }, [user, getPresence]);
+
   const keyExtractor = (item, index) => {
     return String(item._id);
   };
 
   const onRefresh = async () => {
     setData(null);
-    getPresence();
+    setLoading(true);
+    setPage(1);
+    getPresence(1)
+      .then(() => {
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  };
+
+  const onLoadMore = () => {
+    getPresence(page)
+      .then(() => {
+        setLoading(false);
+        setPage(page + 1);
+      })
+      .catch(() => setLoading(false));
   };
 
   return (
@@ -89,7 +122,9 @@ const History = ({navigation}) => {
         refreshControl={
           <RefreshControl refreshing={loading} onRefresh={onRefresh} />
         }>
-        <View style={{paddingHorizontal: 16, marginBottom: 16}}>
+        <View
+          key="presence_button"
+          style={{paddingHorizontal: 16, marginBottom: 16}}>
           <View
             style={{
               flexDirection: 'row',
@@ -115,12 +150,20 @@ const History = ({navigation}) => {
             </TouchableOpacity>
           </View>
         </View>
-        <Content title="Timeline">
+        <Content key="presence_content" title="Timeline">
           {data ? (
             <FlatList
               style={{paddingHorizontal: 8}}
               data={data}
               keyExtractor={keyExtractor}
+              onEndReached={onLoadMore}
+              onEndThreshold={0.3}
+              ListFooterComponent={
+                hasMore && loading ? <ListSkeleton /> : <View />
+              }
+              removeClippedSubviews
+              initialNumToRender={limit}
+              maxToRenderPerBatch={limit}
               renderItem={({item, index}) => (
                 <List
                   title={

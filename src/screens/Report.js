@@ -9,6 +9,7 @@ import {theme} from '../core/theme';
 import {api} from '../configs/api';
 import {RNToasty} from 'react-native-toasty';
 import ListSkeleton from '../components/ListSkeleton';
+import {currency} from '../utils/number';
 
 const Report = ({navigation}) => {
   const [user, setUser] = useState(null);
@@ -94,8 +95,11 @@ const Report = ({navigation}) => {
                 title="Total Waktu Telat"
                 description={`${data.jumlahTelatMin} Menit`}
               />
-              <List title="Uang Makan" description={`Rp ${data.uangMakan}`} />
-              <List title="Denda Telat" description={`Rp ${data.dendaTelat}`} />
+              <List title="Uang Makan" description={currency(data.uangMakan)} />
+              <List
+                title="Denda Telat"
+                description={currency(data.dendaTelat)}
+              />
             </>
           ) : (
             Array.from(Array(9)).map(() => <ListSkeleton />)
