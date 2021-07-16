@@ -60,6 +60,7 @@ const DrawerContent = props => {
             )}
             label="Logout"
             onPress={() => {
+              AsyncStorage.removeItem('fp_auth');
               dispatch(setAuth(false));
               props.navigation.navigate('Auth');
               AsyncStorage.removeItem('api_token');

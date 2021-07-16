@@ -287,6 +287,8 @@ const Home = ({navigation}) => {
       </ScrollView>
       <Modalize
         ref={fpModal}
+        onBackButtonPress={() => BackHandler.exitApp()}
+        alwaysOpen={undefined}
         modalStyle={styles.modal}
         modalHeight={250}
         closeOnOverlayTap={false}>
