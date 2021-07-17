@@ -1,4 +1,4 @@
-package com.qrpresence;
+package com.rfahmi.qrpresence;
 
 import com.facebook.react.ReactActivity;
 

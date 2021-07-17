@@ -19,6 +19,7 @@ const Presence = ({navigation, route}) => {
 
   const onBarCodeRead = scanResult => {
     RNBeep.beep();
+    navigation.goBack();
     createPresence(scanResult.data);
     return;
   };
@@ -26,6 +27,7 @@ const Presence = ({navigation, route}) => {
     if (cameraRef) {
       const options = {quality: 0.3, base64: true};
       const data = await cameraRef.current?.takePictureAsync(options);
+      navigation.goBack();
       createPresence(data.uri);
     }
     return;
@@ -63,7 +65,6 @@ const Presence = ({navigation, route}) => {
             position: 'bottom',
           });
         }
-        navigation.goBack();
       })
       .catch(err => {
         console.log(err);

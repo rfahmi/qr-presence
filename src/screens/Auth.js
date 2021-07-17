@@ -60,7 +60,7 @@ const Auth = ({navigation}) => {
         </View>
         <View style={styles.forms}>
           <TextInput
-            label="NIM"
+            label="NIK"
             returnKeyType="next"
             value={nik.value}
             onChangeText={text => setNik({value: text, error: ''})}

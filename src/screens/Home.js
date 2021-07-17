@@ -229,7 +229,8 @@ const Home = ({navigation}) => {
               alignItems: 'center',
               justifyContent: 'space-between',
               backgroundColor: 'orange',
-              padding: 16,
+              paddingHorizontal: 16,
+              paddingVertical: 8,
             }}>
             <View
               style={{
@@ -237,7 +238,7 @@ const Home = ({navigation}) => {
                 alignItems: 'center',
               }}>
               <Icon name="alert-circle" size={24} color="#fff" />
-              <Text style={{color: '#fff', marginLeft: 6, fontSize: 16}}>
+              <Text style={{color: '#fff', marginLeft: 6, fontSize: 14}}>
                 Tips: Aktifkan sidik jari
               </Text>
             </View>
@@ -270,7 +271,7 @@ const Home = ({navigation}) => {
             padding: 16,
           }}>
           <Text style={{color: '#888', fontSize: 12, marginBottom: 2}}>
-            Hanya 10 data ditampilkan
+            Hanya 10 data terakhir
           </Text>
           <TouchableOpacity
             onPress={() => navigation.navigate('App', {screen: 'History'})}>

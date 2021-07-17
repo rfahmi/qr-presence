@@ -28,7 +28,7 @@ const Splash = ({navigation}) => {
             alignItems: 'center',
           }}>
           <Text style={{color: theme.colors.gray, fontSize: 12}}>
-            Versi 1.0.0
+            Versi 1.1
           </Text>
           <Text style={{color: theme.colors.gray, fontSize: 12}}>
             {'\u00A9'} Fahmi Rizalul

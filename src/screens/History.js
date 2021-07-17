@@ -1,26 +1,26 @@
-import React, {useState, useEffect, useCallback, useRef} from 'react';
+import AsyncStorage from '@react-native-community/async-storage';
+import moment from 'moment';
+import 'moment/locale/id';
+import React, {useEffect, useRef, useState} from 'react';
 import {
+  FlatList,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  FlatList,
-  RefreshControl,
 } from 'react-native';
-import List from '../components/List';
-import TitleBar from '../components/TitleBar';
-import {theme} from '../core/theme';
-import Content from '../organism/Content';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import AsyncStorage from '@react-native-community/async-storage';
-import {api} from '../configs/api';
-import {RNToasty} from 'react-native-toasty';
 import {Modalize} from 'react-native-modalize';
 import {Title} from 'react-native-paper';
+import {RNToasty} from 'react-native-toasty';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import List from '../components/List';
 import ListSkeleton from '../components/ListSkeleton';
-import moment from 'moment';
-import 'moment/locale/id';
+import TitleBar from '../components/TitleBar';
+import {api} from '../configs/api';
+import {theme} from '../core/theme';
+import Content from '../organism/Content';
 
 const History = ({navigation}) => {
   const [actionType, setActionType] = useState(null);
@@ -29,7 +29,7 @@ const History = ({navigation}) => {
   const [data, setData] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
-  const limit = 10;
+  const limit = 6;
 
   const modal = useRef(null);
 
@@ -37,44 +37,44 @@ const History = ({navigation}) => {
     setUser(JSON.parse(await AsyncStorage.getItem('user_data')));
   };
 
-  const getPresence = useCallback(
-    async p => {
-      console.log('page', p);
-      const api_token = await AsyncStorage.getItem('api_token');
-      api
-        .get(`/user/${user._id}/presence?page=${p}&size=${limit}`, {
-          headers: {
-            token: api_token,
-          },
-        })
-        .then(async res => {
-          if (res.data.success) {
-            if (p > 1) {
-              setData([...data, ...res.data.data]);
-            } else {
-              setData(res.data.data);
-            }
-            if (res.data.data.length < limit) {
-              setHasMore(false);
-            }
-            setPage(p + 1);
-            return true;
+  const getPresence = async p => {
+    const api_token = await AsyncStorage.getItem('api_token');
+    const result = api
+      .get(`/user/${user._id}/presence?page=${p}&size=${limit}`, {
+        headers: {
+          token: api_token,
+        },
+      })
+      .then(async res => {
+        if (res.data.success) {
+          if (p > 1) {
+            setData([...data, ...res.data.data]);
           } else {
-            RNToasty.Error({
-              title: res.data.message,
-              position: 'bottom',
-            });
+            setData(res.data.data);
           }
-        })
-        .catch(err => {
+          if (res.data.data.length < limit) {
+            setHasMore(false);
+          }
+          setPage(p + 1);
+        } else {
           RNToasty.Error({
-            title: err.message,
-            position: 'center',
+            title: res.data.message,
+            position: 'bottom',
           });
+        }
+        console.log(p, res.data.data.length);
+
+        return true;
+      })
+      .catch(err => {
+        RNToasty.Error({
+          title: err.message,
+          position: 'center',
         });
-    },
-    [user],
-  );
+        return false;
+      });
+    return result;
+  };
 
   useEffect(() => {
     getUser();
@@ -89,7 +89,7 @@ const History = ({navigation}) => {
           setLoading(false);
         })
         .catch(() => setLoading(false));
-  }, [user, getPresence]);
+  }, [user]);
 
   const keyExtractor = (item, index) => {
     return String(item._id);
