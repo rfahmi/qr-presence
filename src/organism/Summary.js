@@ -13,7 +13,7 @@ const Summary = ({data, action}) => {
           marginBottom: 8,
           color: '#333',
         }}>
-        Hari Ini
+        Bulan Ini
       </Text>
       <View style={styles.container}>
         <View style={styles.card}>

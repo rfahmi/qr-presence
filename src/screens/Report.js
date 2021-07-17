@@ -10,8 +10,10 @@ import {api} from '../configs/api';
 import {RNToasty} from 'react-native-toasty';
 import ListSkeleton from '../components/ListSkeleton';
 import {currency} from '../utils/number';
+import moment from 'moment';
 
-const Report = ({navigation}) => {
+const Report = () => {
+  const date = moment();
   const [user, setUser] = useState(null);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -27,8 +29,8 @@ const Report = ({navigation}) => {
       .post(
         `/user/${user._id}/presence/report/summary`,
         {
-          year: 2021,
-          month: 6,
+          year: date.format('YYYY'),
+          month: date.format('M'),
         },
         {
           headers: {

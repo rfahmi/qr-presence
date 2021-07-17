@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-community/async-storage';
+import moment from 'moment';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   ActivityIndicator,
@@ -24,6 +25,7 @@ import Summary from '../organism/Summary';
 import SummaryHistory from '../organism/SummaryHistory';
 
 const Home = ({navigation}) => {
+  const date = moment();
   const fpModal = useRef(null);
   const [authenticate, setAuthenticate] = useState(false);
   const [data, setData] = useState(null);
@@ -92,8 +94,8 @@ const Home = ({navigation}) => {
       .post(
         `/user/${user._id}/presence/report/summary`,
         {
-          year: 2021,
-          month: 6,
+          year: date.format('YYYY'),
+          month: date.format('M'),
         },
         {
           headers: {
